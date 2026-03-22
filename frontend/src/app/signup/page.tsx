@@ -19,7 +19,11 @@ export default function Signup() {
       await api.post('/auth/register', { name, email, password });
       router.push('/login');
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Registration failed');
+      if (!err.response) {
+        setError('Cannot connect to server. Make sure the backend is running on port 5000.');
+      } else {
+        setError(err.response?.data?.error || 'Registration failed');
+      }
     }
   };
 

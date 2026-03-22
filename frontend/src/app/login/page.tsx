@@ -23,7 +23,11 @@ export default function Login() {
       login(res.data.user, res.data.accessToken);
       router.push('/dashboard');
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Login failed');
+      if (!err.response) {
+        setError('Cannot connect to server. Make sure the backend is running on port 5000.');
+      } else {
+        setError(err.response?.data?.error || 'Login failed');
+      }
     }
   };
 
