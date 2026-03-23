@@ -25,6 +25,10 @@ app.use('/api/courses', subjectRoutes);
 app.use('/api/progress', progressRoutes);
 app.use('/api/ai', aiRoutes);
 
-app.listen(PORT, () => {
-  console.log(`Backend server running on port ${PORT}`);
-});
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(PORT, () => {
+    console.log(`Backend server running on port ${PORT}`);
+  });
+}
+
+export default app;
