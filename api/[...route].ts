@@ -1,5 +1,3 @@
-import app from "../backend/src/app";
-
 export default function handler(req, res) {
-  return app(req, res);
+  return res.status(200).json({ message: "API WORKING" });
 }
