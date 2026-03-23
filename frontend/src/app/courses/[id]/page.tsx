@@ -65,7 +65,7 @@ export default function CourseDetail({ params }: { params: Promise<{ id: string 
                           <PlayCircle className="h-5 w-5 text-indigo-400" />
                           <span className="text-sm font-medium text-slate-700">{video.title}</span>
                         </div>
-                        <span className="text-xs text-slate-400">{Math.floor(video.durationSeconds / 60)} min</span>
+                        <span className="text-xs text-slate-400">{video.durationSeconds ? Math.floor(video.durationSeconds / 60) + ' min' : ''}</span>
                       </li>
                     ))}
                   </ul>

@@ -87,7 +87,7 @@ export default function LearningInterface({ params }: { params: Promise<{ course
                       </div>
                       <div className="flex-1">
                         <p className={`text-sm font-medium ${active ? 'text-indigo-900' : 'text-slate-700'}`}>{video.title}</p>
-                        <p className="text-xs text-slate-400 mt-1">{Math.floor(video.durationSeconds / 60)} min</p>
+                        <p className="text-xs text-slate-400 mt-1">{video.durationSeconds ? Math.floor(video.durationSeconds / 60) + ' min' : ''}</p>
                       </div>
                     </li>
                   )
