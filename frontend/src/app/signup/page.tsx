@@ -17,10 +17,10 @@ export default function Signup() {
     e.preventDefault();
     try {
       await api.post('/auth/register', { name, email, password });
-      router.push('/api/login');
+      router.push('/login');
     } catch (err: any) {
       if (!err.response) {
-        setError('Cannot connect to server. Make sure the backend is running on port 5000.');
+        setError('Unable to reach the server. Please check your internet connection or try again later.');
       } else {
         setError(err.response?.data?.error || 'Registration failed');
       }

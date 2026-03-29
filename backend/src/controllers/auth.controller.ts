@@ -58,7 +58,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
       maxAge: 30 * 24 * 60 * 60 * 1000,
     });
     console.log('[login] User logged in:', user.id, user.email);
@@ -120,7 +120,11 @@ export const logout = async (req: Request, res: Response): Promise<void> => {
     if (refreshToken) {
       await prisma.refreshToken.delete({ where: { token: refreshToken } }).catch(() => {});
     }
-    res.clearCookie('refreshToken');
+    res.clearCookie('refreshToken', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
+    });
     res.json({ message: 'Logged out successfully' });
   } catch (err: any) {
     res.status(500).json({ error: err.message });

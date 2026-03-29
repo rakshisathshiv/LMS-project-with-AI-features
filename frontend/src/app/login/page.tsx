@@ -24,9 +24,9 @@ export default function Login() {
       router.push('/dashboard');
     } catch (err: any) {
       if (!err.response) {
-        setError('Cannot connect to server. Make sure the backend is running on port 5000.');
+        setError('Unable to reach the server. Please check your internet connection or try again later.');
       } else {
-        setError(err.response?.data?.error || 'Login failed');
+        setError(err.response?.data?.error || 'Login failed. Please check your credentials.');
       }
     }
   };
