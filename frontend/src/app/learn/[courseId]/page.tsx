@@ -5,6 +5,7 @@ import { PlayCircle, CheckCircle } from 'lucide-react';
 import api from '@/lib/axios';
 import { useRouter } from 'next/navigation';
 import AIWidget from '@/components/AIWidget';
+import { useAuth } from '@/store/useAuth';
 
 export default function LearningInterface({ params }: { params: Promise<{ courseId: string }> }) {
   const unwrappedParams = use(params);
@@ -12,8 +13,17 @@ export default function LearningInterface({ params }: { params: Promise<{ course
   const [activeVideo, setActiveVideo] = useState<any>(null);
   const [progress, setProgress] = useState<any[]>([]);
   const router = useRouter();
+  const { isAuthenticated, isLoading } = useAuth();
 
   useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      router.push('/login');
+    }
+  }, [isAuthenticated, isLoading, router]);
+
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
     Promise.all([
       api.get(`/courses/${unwrappedParams.courseId}`),
       api.get('/progress')
@@ -35,7 +45,7 @@ export default function LearningInterface({ params }: { params: Promise<{ course
         setActiveVideo(courseVideos[0]);
       }
     }).catch(() => router.push('/dashboard'));
-  }, [unwrappedParams.courseId, router]);
+  }, [unwrappedParams.courseId, router, isAuthenticated]);
 
   const markComplete = async () => {
     if(!activeVideo) return;
@@ -57,6 +67,7 @@ export default function LearningInterface({ params }: { params: Promise<{ course
     return progress.some(p => p.videoId === vidId && p.completed);
   };
 
+  if (isLoading || !isAuthenticated) return null;
   if (!course || !activeVideo) return <div className="p-12 text-center text-slate-500">Loading learning environment...</div>;
 
   return (

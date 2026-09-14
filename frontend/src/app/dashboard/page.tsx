@@ -25,16 +25,10 @@ export default function Dashboard() {
     
     Promise.all([
       api.get('/progress'),
-      api.get('/courses')
-    ]).then(([progRes, currRes]) => {
+      api.get('/courses/enrolled'),
+    ]).then(([progRes, enrolledRes]) => {
       setProgressData(progRes.data);
-      // We will need to map progress to courses, ideally the backend supports this better via an enrollments endpoint.
-      // For now, we fetch all courses and cross-reference if progress exists, or just show all for demo.
-      // An LMS dashboard would show ENROLLED courses. Let's assume the user is enrolled in everything they have progress for.
-      
-      const enrolledIds = new Set(progRes.data.map((p: any) => p.video?.section?.subjectId /* Note: this might not exist based on Prisma include */));
-      // For MVP, just show all courses indicating "Continue Learning"
-      setSubjects(currRes.data);
+      setSubjects(enrolledRes.data);
       setLoading(false);
     }).catch(() => setLoading(false));
   }, [isAuthenticated]);
@@ -46,6 +40,14 @@ export default function Dashboard() {
     <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
       <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 mb-8">Welcome back, {user?.name}</h1>
       
+      {subjects.length === 0 ? (
+        <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-12 text-center">
+          <p className="text-slate-600 mb-4">You are not enrolled in any courses yet.</p>
+          <Link href="/courses" className="text-indigo-600 font-medium hover:text-indigo-700">
+            Browse the catalog
+          </Link>
+        </div>
+      ) : (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {subjects.map(subject => (
           <div key={subject.id} className="border border-slate-200 rounded-2xl bg-white shadow-sm overflow-hidden flex flex-col hover:shadow-md transition">
@@ -63,6 +65,7 @@ export default function Dashboard() {
           </div>
         ))}
       </div>
+      )}
     </div>
   );
 }

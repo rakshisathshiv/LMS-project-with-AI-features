@@ -6,7 +6,6 @@ import Link from 'next/link';
 import { BookOpen } from 'lucide-react';
 import api from '@/lib/axios';
 import { useAuth } from '@/store/useAuth';
-import Cookies from 'js-cookie';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -19,7 +18,6 @@ export default function Login() {
     e.preventDefault();
     try {
       const res = await api.post('/auth/login', { email, password });
-      Cookies.set('accessToken', res.data.accessToken, { expires: 1/96 }); // 15 mins
       login(res.data.user, res.data.accessToken);
       router.push('/dashboard');
     } catch (err: any) {
@@ -39,6 +37,9 @@ export default function Login() {
           <h2 className="mt-6 text-3xl font-extrabold tracking-tight text-slate-900">Welcome back</h2>
           <p className="mt-2 text-sm text-slate-600">
             Or <Link href="/signup" className="font-medium text-indigo-600 hover:text-indigo-500">create a new account</Link>
+          </p>
+          <p className="mt-3 text-xs text-slate-500">
+            Demo: demo@lms.com / password123 (after running setup.bat)
           </p>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>

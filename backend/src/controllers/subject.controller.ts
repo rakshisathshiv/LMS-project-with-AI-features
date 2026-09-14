@@ -40,6 +40,22 @@ export const getSubjectDetails = async (req: Request, res: Response): Promise<vo
   }
 };
 
+export const getEnrollments = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const userId = req.user!.id;
+    const enrollments = await prisma.enrollment.findMany({
+      where: { userId },
+      include: {
+        subject: true,
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+    res.json(enrollments.map((e) => e.subject));
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
 export const enrollSubject = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const userId = req.user!.id;

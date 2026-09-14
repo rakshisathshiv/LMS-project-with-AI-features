@@ -1,9 +1,30 @@
 import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
 
 async function main() {
   console.log('Seeding sample data for LMS...');
+
+  const demoEmail = 'demo@lms.com';
+  const existingDemo = await prisma.user.findUnique({ where: { email: demoEmail } });
+  if (!existingDemo) {
+    const password_hash = await bcrypt.hash('password123', 10);
+    await prisma.user.create({
+      data: {
+        email: demoEmail,
+        name: 'Demo Student',
+        password_hash,
+      },
+    });
+    console.log('Demo user created:', demoEmail, '/ password123');
+  }
+
+  const subjectCount = await prisma.subject.count();
+  if (subjectCount > 0) {
+    console.log('Subjects already seeded, skipping course data.');
+    return;
+  }
 
   const c1 = await prisma.subject.create({
     data: {

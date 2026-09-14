@@ -4,15 +4,22 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { BookOpen, LogOut, User as UserIcon } from 'lucide-react';
 import { useAuth } from '@/store/useAuth';
+import { useRouter } from 'next/navigation';
+import api from '@/lib/axios';
 
 export default function Navbar() {
   const { user, isAuthenticated, logout } = useAuth();
   const pathname = usePathname();
+  const router = useRouter();
 
   const handleLogout = async () => {
-    // Call API (optional cleanup) then local logout
-    await fetch('http://localhost:5000/api/auth/logout', { method: 'POST' });
+    try {
+      await api.post('/auth/logout');
+    } catch {
+      // Still clear local session if the server is unreachable
+    }
     logout();
+    router.push('/');
   };
 
   return (

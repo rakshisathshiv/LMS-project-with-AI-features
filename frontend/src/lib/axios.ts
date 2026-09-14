@@ -18,11 +18,25 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+const AUTH_NO_RETRY_PATHS = ['/auth/refresh', '/auth/login', '/auth/register'];
+
+function isAuthNoRetryRequest(url: string | undefined): boolean {
+  if (!url) return false;
+  return AUTH_NO_RETRY_PATHS.some((path) => url.includes(path));
+}
+
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    const status = error.response?.status;
+
+    if (
+      originalRequest &&
+      !originalRequest._retry &&
+      !isAuthNoRetryRequest(originalRequest.url) &&
+      (status === 401 || status === 403)
+    ) {
       originalRequest._retry = true;
       try {
         const { data } = await axios.post(
@@ -30,12 +44,17 @@ api.interceptors.response.use(
           {},
           { withCredentials: true }
         );
-        Cookies.set('accessToken', data.accessToken, { expires: 1/96 }); // 15 mins
+        Cookies.set('accessToken', data.accessToken, { expires: 1 / 96 }); // 15 mins
         originalRequest.headers.Authorization = `Bearer ${data.accessToken}`;
         return api(originalRequest);
       } catch (err) {
         Cookies.remove('accessToken');
-        if (typeof window !== 'undefined') window.location.href = '/login';
+        if (typeof window !== 'undefined') {
+          const path = window.location.pathname;
+          if (path !== '/login' && path !== '/signup') {
+            window.location.href = '/login';
+          }
+        }
         return Promise.reject(err);
       }
     }
