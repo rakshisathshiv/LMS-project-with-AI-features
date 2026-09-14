@@ -14,9 +14,12 @@ cd backend
 call npm install
 if errorlevel 1 exit /b 1
 
-echo Applying database migrations...
+echo Applying database migrations (requires PostgreSQL DATABASE_URL in backend\.env)...
 call npx prisma migrate deploy
-if errorlevel 1 exit /b 1
+if errorlevel 1 (
+  echo Migration failed. Set DATABASE_URL in backend\.env to a PostgreSQL URL ^(see DEPLOY_VERCEL.md^).
+  exit /b 1
+)
 
 echo Seeding database...
 call npx prisma db seed

@@ -21,14 +21,44 @@ for (const key of requiredEnv) {
 
 const app = express();
 
-const allowedOrigins = [
-  'http://localhost:3000',
-  process.env.FRONTEND_URL,
-].filter(Boolean) as string[];
+function buildAllowedOrigins(): string[] {
+  const fromEnv = (process.env.ALLOWED_ORIGINS || '')
+    .split(',')
+    .map((o) => o.trim())
+    .filter(Boolean);
+  return [
+    'http://localhost:3000',
+    process.env.FRONTEND_URL,
+    ...fromEnv,
+  ].filter(Boolean) as string[];
+}
+
+const allowedOrigins = buildAllowedOrigins();
 
 app.use(
   cors({
-    origin: process.env.NODE_ENV === 'production' ? allowedOrigins : true,
+    origin(origin, callback) {
+      if (process.env.NODE_ENV !== 'production') {
+        callback(null, true);
+        return;
+      }
+      if (!origin) {
+        callback(null, true);
+        return;
+      }
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+        return;
+      }
+      if (
+        process.env.ALLOW_VERCEL_PREVIEWS !== 'false' &&
+        /^https:\/\/[\w-]+\.vercel\.app$/.test(origin)
+      ) {
+        callback(null, true);
+        return;
+      }
+      callback(new Error(`CORS blocked for origin: ${origin}`));
+    },
     credentials: true,
   })
 );
